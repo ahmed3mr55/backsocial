@@ -10,18 +10,7 @@ const { initSocket } = require("./functions/socket");
 
 
 // Middleware
-const corsOptions = {
-  origin: (origin, callback) => {
-
-    if (!origin || /\.vercel\.app$/.test(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"), false);
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-};
+app.use(cors());
 const app = express();
 const server = http.createServer(app);
 app.use(express.json());
