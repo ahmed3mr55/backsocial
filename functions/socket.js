@@ -6,7 +6,7 @@ const onlineUsers = new Map();
 
 function initSocket(server) {
   io = new Server(server, {
-    cors: { origin: "*", credentials: true }
+    cors: { origin: process.env.FRONT_URL, credentials: true }
   });
 
   io.on("connection", (socket) => {
