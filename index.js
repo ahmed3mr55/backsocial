@@ -11,6 +11,11 @@ const { initSocket } = require("./functions/socket");
 
 const app = express();
 const server = http.createServer(app);
+app.options("*", cors({
+  origin: "https://front-social-seven.vercel.app",
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  credentials: true,
+}));
 
 // Middleware
 app.use(
