@@ -198,7 +198,7 @@ router.post("/toggle-2fa", verifyToken, async (req, res) => {
     }
     user.twoFactorEnabled = true;
     await user.save();
-    return res.status(200).json({ message: "2FA enabled" });
+    return res.status(200).json({ message: "2FA Enabled" });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
