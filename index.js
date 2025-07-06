@@ -14,7 +14,7 @@ const server = http.createServer(app);
 // Middleware
 app.use(
   cors({
-    origin: "https://front-social-seven.vercel.app",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
