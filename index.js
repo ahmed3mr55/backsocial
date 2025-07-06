@@ -8,8 +8,6 @@ require("dotenv").config();
 // Socket
 const { initSocket } = require("./functions/socket");
 
-const app = express();
-const server = http.createServer(app);
 
 // Middleware
 app.use(
@@ -19,6 +17,8 @@ app.use(
     credentials: true,
   })
 );
+const app = express();
+const server = http.createServer(app);
 app.use(express.json());
 app.use(cookieParser());
 connectDB();
