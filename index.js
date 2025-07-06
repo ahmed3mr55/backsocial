@@ -10,9 +10,15 @@ const { initSocket } = require("./functions/socket");
 
 
 // Middleware
-app.use(cors());
 const app = express();
 const server = http.createServer(app);
+app.use(
+  cors({
+    origin: "https://front-social-seven.vercel.app",
+    credentials: true, 
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 connectDB();
