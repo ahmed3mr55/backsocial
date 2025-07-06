@@ -1,4 +1,3 @@
-// index.js
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -12,11 +11,10 @@ const { initSocket } = require("./functions/socket");
 const app = express();
 const server = http.createServer(app);
 
-
 // Middleware
 app.use(
   cors({
-    origin: "*",
+    origin: "https://front-social-seven.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
