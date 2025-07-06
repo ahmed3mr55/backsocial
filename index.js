@@ -9,20 +9,39 @@ require("dotenv").config();
 // Socket
 const { initSocket } = require("./functions/socket");
 
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://front-social-seven.vercel.app"
+  );
+
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
 const app = express();
 const server = http.createServer(app);
-app.options("*", cors({
-  origin: "https://front-social-seven.vercel.app/",
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+app.use(cors({
+  origin: "https://front-social-seven.vercel.app",
   credentials: true,
 }));
 
 // Middleware
-app.use(cors({
-  origin: "https://front-social-seven.vercel.app/",
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "https://front-social-seven.vercel.app/",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 connectDB();
@@ -44,7 +63,6 @@ app.use("/api/followRequest", require("./routes/followRequest"));
 app.use("/api/link", require("./routes/profileLink"));
 app.use("/api/viewerHistory", require("./routes/viewerHistory"));
 app.use("/api/notification", require("./routes/notification"));
-
 
 initSocket(server);
 
