@@ -43,11 +43,12 @@ router.post("/login", async (req, res) => {
         .status(200)
         .cookie("token", token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
-          sameSite: "strict", // Adjust as needed
-          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "none",
+          domain: ".vercel.app",
+          maxAge: 30 * 24 * 60 * 60 * 1000,
         })
-        .json({ message: "Login successful",userId });
+        .json({ message: "Login successful", userId });
     }
     // Generate a temporary token for 2FA
     const otp = await generateOTP();
@@ -105,9 +106,10 @@ router.post("/login/verify-otp", async (req, res) => {
     .status(200)
     .cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
-      sameSite: "strict", // Adjust as needed
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      domain: ".vercel.app",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     })
     .json({ message: "Login successful", userId });
 });
@@ -172,14 +174,14 @@ router.post("/signup", async (req, res) => {
     const userId = newUser._id.toString();
     // Send token in response
     return res
-      .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
-        sameSite: "strict", // Adjust as needed
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        domain: ".vercel.app",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
       })
-      .json({ message: "Signup successful", userId });
+      .json({ message: "Login successful", userId });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
