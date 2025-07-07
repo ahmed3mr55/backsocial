@@ -8,23 +8,44 @@ require("dotenv").config();
 // Socket
 const { initSocket } = require("./functions/socket");
 
-
 // Middleware
 const app = express();
 const server = http.createServer(app);
+
+const corsOptions = {
+  origin: "https://front-social-seven.vercel.app",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Accept",
+    "X-Requested-With",
+  ],
+  exposedHeaders: ["Authorization"],
+};
+
 app.use(
   cors({
     origin: "https://front-social-seven.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "X-Requested-With",
+    ],
     exposedHeaders: ["Authorization"],
   })
 );
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 connectDB();
+
+app.options("/socket.io/*", cors(corsOptions));
 
 // Routes
 app.get("/", (req, res) => {
