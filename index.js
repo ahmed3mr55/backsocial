@@ -11,11 +11,10 @@ const { initSocket } = require("./functions/socket");
 const app = express();
 const server = http.createServer(app);
 
-// ===== Dynamic CORS Middleware for all subdomains =====
+// ===== Manual CORS Middleware =====
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  // Allow any subdomain of front-social...vercel.app
-  if (origin && /https:\/\/.*\.vercel\.app$/.test(origin)) {
+  if (origin && origin.endsWith(".vercel.app")) {
     res.header("Access-Control-Allow-Origin", origin);
   }
   res.header("Access-Control-Allow-Credentials", "true");
@@ -29,7 +28,6 @@ app.use((req, res, next) => {
   );
   res.header("Access-Control-Expose-Headers", "Authorization");
 
-  // Preflight
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
   }
@@ -47,19 +45,24 @@ connectDB();
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to the Social Media API" });
 });
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/user", require("./routes/user"));
-app.use("/api/post", require("./routes/post"));
-app.use("/api/share", require("./routes/sharePost"));
-app.use("/api/comment", require("./routes/comment"));
-app.use("/api/replyComment", require("./routes/replyComment"));
-app.use("/api/like", require("./routes/like"));
-app.use("/api/follow", require("./routes/follow"));
-app.use("/api/password", require("./routes/password"));
-app.use("/api/followRequest", require("./routes/followRequest"));
-app.use("/api/link", require("./routes/profileLink"));
-app.use("/api/viewerHistory", require("./routes/viewerHistory"));
-app.use("/api/notification", require("./routes/notification"));
+const routes = [
+  "auth",
+  "user",
+  "post",
+  "sharePost",
+  "comment",
+  "replyComment",
+  "like",
+  "follow",
+  "password",
+  "followRequest",
+  "profileLink",
+  "viewerHistory",
+  "notification",
+];
+routes.forEach(route => {
+  app.use(`/api/${route === 'sharePost' ? 'share' : route === 'profileLink' ? 'link' : route}`, require(`./routes/${route}`));
+});
 
 // ===== Initialize Socket.IO =====
 initSocket(server);
