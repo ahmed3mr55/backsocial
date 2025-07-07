@@ -45,7 +45,6 @@ router.post("/login", async (req, res) => {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "none",
-          domain: ".vercel.app",
           maxAge: 30 * 24 * 60 * 60 * 1000,
         })
         .json({ message: "Login successful", userId });
@@ -108,7 +107,6 @@ router.post("/login/verify-otp", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "none",
-      domain: ".vercel.app",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     })
     .json({ message: "Login successful", userId });
@@ -178,7 +176,6 @@ router.post("/signup", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",
-        domain: ".vercel.app",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       })
       .json({ message: "Login successful", userId });
