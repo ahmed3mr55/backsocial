@@ -1,45 +1,30 @@
-// socket.js
+// functions/socket.js
 const { Server } = require("socket.io");
 
-let io;
-const onlineUsers = new Map();
+let io, onlineUsers = new Map();
 
 function initSocket(server) {
   io = new Server(server, {
     path: "/socket.io",
     cors: {
       origin: "https://front-social-seven.vercel.app",
-      methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
-      allowedHeaders: ["Authorization", "Content-Type"],
+      methods: ["GET","POST","OPTIONS"],
+      allowedHeaders: ["Content-Type","Authorization"],
     },
-    transports: ["websocket"],
+    transports: ["websocket"]  // نفّذ الاختبار أولًا على websocket فقط
   });
 
-  io.on("connection", (socket) => {
-    console.log("a user connected");
-    socket.on("register", (userId) => {
-      onlineUsers.set(userId, socket.id);
-      console.log(`User ${userId} connected, socket id: ${socket.id}`);
-    });
-
+  io.on("connection", socket => {
+    console.log("Socket connected:", socket.id);
+    socket.on("register", uid => onlineUsers.set(uid, socket.id));
     socket.on("disconnect", () => {
-      for (const [uid, sid] of onlineUsers) {
-        if (sid === socket.id) {
-          onlineUsers.delete(uid);
-          console.log(`User ${uid} disconnected`);
-          break;
-        }
-      }
+      for (let [uid, sid] of onlineUsers)
+        if (sid === socket.id) onlineUsers.delete(uid);
     });
   });
 
   return io;
 }
 
-function getIO() {
-  if (!io) throw new Error("Socket.IO not initialized!");
-  return io;
-}
-
-module.exports = { initSocket, getIO, onlineUsers };
+module.exports = { initSocket, onlineUsers };
