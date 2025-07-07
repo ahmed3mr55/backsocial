@@ -6,14 +6,14 @@ const onlineUsers = new Map();
 
 function initSocket(server) {
   io = new Server(server, {
-    path: "/socket.io", // افتراضي
+    path: "/socket.io",
     cors: {
       origin: "https://front-social-seven.vercel.app",
       methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
       allowedHeaders: ["Authorization", "Content-Type"],
     },
-    transports: ["websocket", "polling"],
+    transports: ["websocket"],
   });
 
   io.on("connection", (socket) => {
