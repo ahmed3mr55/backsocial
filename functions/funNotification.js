@@ -1,6 +1,5 @@
 // utils/notifications.js
 const { Notification } = require("../models/Notification");
-const { getIO, onlineUsers } = require("./socket");
 
 const createNotification = async ({
   recipient,
@@ -19,13 +18,6 @@ const createNotification = async ({
       read: false,
     });
     await notification.save();
-
-    // Send notification to recipient
-    const socketId = onlineUsers.get(recipient.toString());
-    if (socketId) {
-      const io = getIO();
-      io.to(socketId).emit("newNotification", notification);
-    }
   } catch (error) {
     console.error("Error creating notification:", error);
   }

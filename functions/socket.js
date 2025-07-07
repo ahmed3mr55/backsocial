@@ -12,7 +12,7 @@ function initSocket(server) {
       methods: ["GET","POST","OPTIONS"],
       allowedHeaders: ["Content-Type","Authorization"],
     },
-    transports: ["websocket"]  // نفّذ الاختبار أولًا على websocket فقط
+    transports: ["websocket"]
   });
 
   io.on("connection", socket => {
@@ -26,5 +26,3 @@ function initSocket(server) {
 
   return io;
 }
-
-module.exports = { initSocket, onlineUsers };
