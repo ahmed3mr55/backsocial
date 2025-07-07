@@ -11,10 +11,13 @@ const { initSocket } = require("./functions/socket");
 const app = express();
 const server = http.createServer(app);
 
-// ===== CORS Manual Middleware =====
-const FRONT_ORIGIN = "https://front-social-seven.vercel.app";
+// ===== Dynamic CORS Middleware for all subdomains =====
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", FRONT_ORIGIN);
+  const origin = req.headers.origin;
+  // Allow any subdomain of front-social...vercel.app
+  if (origin && /https:\/\/.*\.vercel\.app$/.test(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Methods",
@@ -25,9 +28,9 @@ app.use((req, res, next) => {
     "Content-Type,Authorization,Accept,X-Requested-With"
   );
   res.header("Access-Control-Expose-Headers", "Authorization");
-  
+
+  // Preflight
   if (req.method === "OPTIONS") {
-    // Preflight request
     return res.sendStatus(204);
   }
   next();
