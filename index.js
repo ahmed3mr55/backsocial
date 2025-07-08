@@ -4,11 +4,15 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 require("dotenv").config();
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
+const compression = require("compression");
 
 const app = express();
 
 const corsOptions = {
-  origin: "https://front-social-seven.vercel.app",
+  origin: process.env.FRONT_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: [
@@ -20,9 +24,38 @@ const corsOptions = {
   exposedHeaders: ["Authorization"],
 };
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 2000, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // disable the `X-RateLimit-*` headers
+});
+app.use(limiter);
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
+app.use(hpp());
+const xss = require("xss");
+
+app.use((req, res, next) => {
+  const sanitizeInput = (obj) => {
+    for (let key in obj) {
+      if (typeof obj[key] === "string") {
+        obj[key] = xss(obj[key]);
+      } else if (typeof obj[key] === "object" && obj[key] !== null) {
+        sanitizeInput(obj[key]);
+      }
+    }
+  };
+  if (req.body) sanitizeInput(req.body);
+  if (req.query) sanitizeInput(req.query);
+  if (req.params) sanitizeInput(req.params);
+  next();
+});
+
+app.use(compression());
 
 connectDB();
 
