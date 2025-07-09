@@ -9,6 +9,7 @@ const {
   createNotification,
   deleteNotification,
 } = require("../functions/funNotification");
+const { isDirty } = require("../utils/filterWords");
 
 // get all replies to a comment
 // GET /api/replyComment/comments/:commentId/replies?skip=0&limit=3
@@ -49,6 +50,9 @@ router.post("/comments/:commentId/create", verifyToken, async (req, res) => {
   });
   const { error } = schema.validate({ body, commentId });
   if (error) return res.status(400).json({ message: error.details[0].message });
+  if (isDirty(body)) {
+    return res.status(400).json({ message: "Comment contains dirty words. Repeated violations will result in a ban" });
+  }
   try {
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ message: "Comment not found" });

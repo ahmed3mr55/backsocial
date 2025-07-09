@@ -9,6 +9,7 @@ const Follow = require("../models/Follow");
 const { verifyToken } = require("../Middleware/verifyToken");
 const { optionalAuth } = require("../Middleware/optionalAuth");
 const Joi = require("joi");
+const { isDirty } = require("../utils/filterWords");
 
 // Create a new post route
 router.post("/create", verifyToken, async (req, res) => {
@@ -21,6 +22,9 @@ router.post("/create", verifyToken, async (req, res) => {
   const { error } = schema.validate({ body });
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
+  }
+  if (isDirty(body)) {
+    return res.status(400).json({ message: "Post contains dirty words. Repeated violations will result in a ban" });
   }
   try {
     let newPost = new Post({
@@ -353,7 +357,7 @@ router.delete("/delete/:postId", verifyToken, async (req, res) => {
     // 2) Load post
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post not found" });
-    if (post.user.toString() !== req.user._id.toString()) {
+    if (post.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 

@@ -9,6 +9,7 @@ const {
   createNotification,
   deleteNotification,
 } = require("../functions/funNotification");
+const { isDirty } = require("../utils/filterWords");
 
 // Create a new comment route
 router.post("/create/:postId", verifyToken, async (req, res) => {
@@ -23,6 +24,9 @@ router.post("/create/:postId", verifyToken, async (req, res) => {
   const { error } = schema.validate({ body, postId });
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
+  }
+  if (isDirty(body)) {
+    return res.status(400).json({ message: "Comment contains dirty words. Repeated violations will result in a ban" });
   }
   try {
     const post = await Post.findById(postId);

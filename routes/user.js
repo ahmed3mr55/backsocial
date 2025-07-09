@@ -13,6 +13,7 @@ const {
 } = require("../utils/cloudinary");
 const { FollowRequest } = require("../models/FollowRequest");
 const Follow = require("../models/Follow");
+const { isDirty } = require("../utils/filterWords");
 
 router.get("/me", verifyToken, async (req, res) => {
   const user = req.user;
@@ -133,9 +134,30 @@ router.put("/update", verifyToken, async (req, res) => {
     if (req.body.email) updates.email = req.body.email;
     if (req.body.country) updates.country = req.body.country;
     if (req.body.city) updates.city = req.body.city;
-    if (req.body.firstName) updates.firstName = req.body.firstName;
-    if (req.body.lastName) updates.lastName = req.body.lastName;
-    if (req.body.bio) updates.bio = req.body.bio;
+    if (req.body.firstName) {
+      if (isDirty(req.body.firstName)) {
+        return res
+          .status(400)
+          .json({ message: "First name contains dirty words. Repeated violations will result in a ban" });
+      }
+      updates.firstName = req.body.firstName;
+    }
+    if (req.body.lastName) {
+      if (isDirty(req.body.lastName)) {
+        return res
+          .status(400)
+          .json({ message: "Last name contains dirty words. Repeated violations will result in a ban" });
+      }
+      updates.lastName = req.body.lastName;
+    }
+    if (req.body.bio) {
+      if (isDirty(req.body.bio)) {
+        return res
+          .status(400)
+          .json({ message: "Bio contains dirty words. Repeated violations will result in a ban" });
+      }
+      updates.bio = req.body.bio;
+    }
     if (req.body.relationship) updates.relationship = req.body.relationship;
     if (req.body.password) {
       const salt = await bcrypt.genSalt(10);
