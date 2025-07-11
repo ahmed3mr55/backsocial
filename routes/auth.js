@@ -216,14 +216,14 @@ router.get("/get-status-2fa", verifyToken, async (req, res) => {
 });
 
 // Logout route
-router.post("/logout", verifyToken, async (req, res) => {
-  try {
-    // Clear the cookie
-    res.clearCookie("token");
-    return res.status(200).json({ message: "Logout successful" });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
-  }
+router.post("/logout", async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    path: "/",
+  });
+  return res.status(200).json({ message: "Logout successful" });
 });
 
 // login with QRCode
