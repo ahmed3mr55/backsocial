@@ -44,7 +44,7 @@ router.post("/login", async (req, res) => {
         .cookie("token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "none",
+          sameSite: "strict",
           maxAge: 30 * 24 * 60 * 60 * 1000,
         })
         .json({ message: "Login successful", userId });
@@ -221,6 +221,62 @@ router.post("/logout", verifyToken, async (req, res) => {
     // Clear the cookie
     res.clearCookie("token");
     return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// login with QRCode
+router.post("/login/qrcode", async (req, res) => {
+  // 1. validate input
+  const { qrcodeToken } = req.body;
+  const { error } = Joi.object({
+    qrcodeToken: Joi.string().required(),
+  }).validate({ qrcodeToken });
+  if (error) return res.status(400).json({ message: error.details[0].message });
+
+  // 2. verify QR token
+  let decoded;
+  try {
+    decoded = jwt.verify(qrcodeToken, process.env.SECRET_KEY);
+  } catch {
+    return res.status(400).json({ message: "Invalid or expired QR token" });
+  }
+
+  // 3. find user
+  const user = await User.findById(decoded.id);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  // 4. generate session JWT
+  const payload = {
+    id: user._id,
+    isAdmin: user.isAdmin,
+    tokenVersion: user.tokenVersion,
+  };
+  const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "30d" });
+
+  // 5. send cookie + response
+  return res
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    })
+    .json({ message: "Login successful", userId: user._id.toString() });
+});
+
+// generate QRCode
+router.get("/generate/qrcode", verifyToken, async (req, res) => {
+  const user = req.user;
+  try {
+    const payload = {
+      id: user._id,
+    };
+    const qrcodeToken = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "15m",
+    });
+    return res.status(200).json({ qrcodeToken });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }

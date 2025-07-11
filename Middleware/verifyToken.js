@@ -31,9 +31,8 @@ async function verifyToken(req, res, next) {
     }
 
     if (user.tokenVersion !== tokenVersion) {
-      return res
-        .status(401)
-        .json({ message: "Token invalid. Please log in again." });
+      res.clearCookie("token");
+      return res.status(200).json({ message: "Logout successful" });
     }
 
     req.user = user;

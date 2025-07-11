@@ -18,7 +18,15 @@ const { isDirty } = require("../utils/filterWords");
 router.get("/me", verifyToken, async (req, res) => {
   const user = req.user;
   try {
-    return res.status(200).json({ user });
+    const currentUser = await User.findById(user.id)
+      .select(
+        "-password -resetPasswordToken -resetPasswordExpire -twoFactorOTP -twoFactorTempToken -twoFactorExpires -twoFactorEnabled"
+      )
+      .lean();
+    return res.status(200).json({
+      message: "User found",
+      user: currentUser,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -39,7 +47,9 @@ router.get("/:username", optionalAuth, async (req, res) => {
 
   try {
     const searchUser = await User.findOne({ username })
-      .select("-password")
+      .select(
+        "-password -resetPasswordToken -resetPasswordExpire -twoFactorOTP -twoFactorTempToken -twoFactorExpires -twoFactorEnabled"
+      )
       .lean();
     if (!searchUser) {
       return res.status(404).json({ message: "User not found" });
@@ -104,7 +114,7 @@ router.put("/update", verifyToken, async (req, res) => {
     "token",
     "token_",
     "search",
-    "followRequests"
+    "followRequests",
   ];
   const schema = Joi.object({
     username: Joi.string()
@@ -136,25 +146,28 @@ router.put("/update", verifyToken, async (req, res) => {
     if (req.body.city) updates.city = req.body.city;
     if (req.body.firstName) {
       if (isDirty(req.body.firstName)) {
-        return res
-          .status(400)
-          .json({ message: "First name contains dirty words. Repeated violations will result in a ban" });
+        return res.status(400).json({
+          message:
+            "First name contains dirty words. Repeated violations will result in a ban",
+        });
       }
       updates.firstName = req.body.firstName;
     }
     if (req.body.lastName) {
       if (isDirty(req.body.lastName)) {
-        return res
-          .status(400)
-          .json({ message: "Last name contains dirty words. Repeated violations will result in a ban" });
+        return res.status(400).json({
+          message:
+            "Last name contains dirty words. Repeated violations will result in a ban",
+        });
       }
       updates.lastName = req.body.lastName;
     }
     if (req.body.bio) {
       if (isDirty(req.body.bio)) {
-        return res
-          .status(400)
-          .json({ message: "Bio contains dirty words. Repeated violations will result in a ban" });
+        return res.status(400).json({
+          message:
+            "Bio contains dirty words. Repeated violations will result in a ban",
+        });
       }
       updates.bio = req.body.bio;
     }
