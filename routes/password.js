@@ -92,6 +92,7 @@ router.post('/reset-password/:id/:token', async (req, res) => {
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
+        user.tokenVersion += 1;
         await user.save();
         return res.status(200).json({ message: 'Password reset successful' });
     } catch (error) {
