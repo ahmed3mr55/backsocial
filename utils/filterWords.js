@@ -228,6 +228,7 @@ function isDirty(text) {
   const normalized = text
     .replace(/أ|إ/g, "ا")
     .replace(/[ًٌٍَُِّْ]/g, "")
+    .replace(/ـ/g, "")
     .toLowerCase();
 
   for (let i = 0; i < words.length; i++) {
