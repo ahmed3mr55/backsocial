@@ -20,7 +20,7 @@ router.get("/me", verifyToken, async (req, res) => {
   try {
     const currentUser = await User.findById(user.id)
       .select(
-        "-password -resetPasswordToken -resetPasswordExpire -twoFactorOTP -twoFactorTempToken -twoFactorExpires -twoFactorEnabled"
+        "-password -resetPasswordToken -resetPasswordExpire -twoFactorOTP -twoFactorTempToken -twoFactorExpires "
       )
       .lean();
     return res.status(200).json({
@@ -48,7 +48,7 @@ router.get("/:username", optionalAuth, async (req, res) => {
   try {
     const searchUser = await User.findOne({ username })
       .select(
-        "-password -resetPasswordToken -resetPasswordExpire -twoFactorOTP -twoFactorTempToken -twoFactorExpires -twoFactorEnabled"
+        "-password -resetPasswordToken -otp -resetPasswordExpire -twoFactorOTP -isAdmin -enabledViewerHistory -tokenVersion -twoFactorTempToken -twoFactorExpires -twoFactorEnabled"
       )
       .lean();
     if (!searchUser) {
